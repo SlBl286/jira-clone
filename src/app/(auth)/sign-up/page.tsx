@@ -1,7 +1,10 @@
+"use client"
+
+import { SignUpCard } from '@/features/auth/components/sign-up-card'
 import React from 'react'
 
-export default function SignInPage() {
+export default function SignUpPage() {
   return (
-    <div>page</div>
+    <SignUpCard/>
   )
 }
