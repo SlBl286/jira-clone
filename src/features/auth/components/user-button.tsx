@@ -51,7 +51,7 @@ export const UserButton = () => {
                     </p>
                     <p className="text-sx text-neutral-500">{email}</p>
                 </div>
-                <DottedSeprator className="mb-1"/>
+                <DottedSeprator className="my-1"/>
                 <DropdownMenuItem onClick={()=> {mutate()}}
                  className="h-10 flex items-center justify-center text-amber-700 font-medium cursor-pointer">
                     <LogOut className="size-4 mr-2"/>

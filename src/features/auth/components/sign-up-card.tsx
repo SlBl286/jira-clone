@@ -18,7 +18,7 @@ import { useRegister } from "../api/use-register";
 
 
 export const SignUpCard = () => {
-  const {mutate} = useRegister();
+  const {mutate,isPending} = useRegister();
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -61,6 +61,7 @@ export const SignUpCard = () => {
                     <Input
                       {...field}
                       type={"text"}
+                      disabled={isPending}
                       placeholder="Enter your name"
                     />
                   </FormControl>
@@ -77,6 +78,7 @@ export const SignUpCard = () => {
                     <Input
                       {...field}
                       type={"email"}
+                      disabled={isPending}
                       placeholder="Enter email"
                     />
                   </FormControl>
@@ -92,6 +94,7 @@ export const SignUpCard = () => {
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={isPending}
                       type={"password"}
                       placeholder="Enter password"
                     />
@@ -100,7 +103,7 @@ export const SignUpCard = () => {
                 </FormItem>
               )}
             />
-            <Button disabled={false} size={"lg"} className="w-full">
+            <Button disabled={isPending} size={"lg"} className="w-full" >
               Register
             </Button>
           </form>
