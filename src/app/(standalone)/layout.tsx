@@ -5,6 +5,7 @@ import { CreateWorkspaceModal } from "@/features/workspaces/components/create-wo
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { UserButton } from "@/features/auth/components/user-button";
 
 type StandaloneLayoutProps = {
   children: React.ReactNode;
@@ -18,6 +19,7 @@ export default function StandaloneLayout({ children }: StandaloneLayoutProps) {
           <Link href={"/"}>
             <Image src={"/logo.svg"} alt="logo" height={56} width={152}/>
           </Link>
+          <UserButton/>
         </nav>
         <div className="flex flex-col items-center justify-center py-4">
           {children}

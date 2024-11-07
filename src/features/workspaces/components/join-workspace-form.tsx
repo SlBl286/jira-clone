@@ -20,24 +20,24 @@ type JoinWorkspceFormProps = {
   initialValues: {
     name?: string;
   };
+  code : string;
+  workspaceId : string;
 };
 
-export const JoinWorkspceForm = ({ initialValues }: JoinWorkspceFormProps) => {
+export const JoinWorkspceForm = ({ initialValues,code,workspaceId }: JoinWorkspceFormProps) => {
   const router = useRouter();
-  const workspaceId = useWorkspaceId();
-  const inviteCode = useInviteCode();
-  const { mutate ,isPending} = useJoinWorkspace();
+  const { mutate, isPending } = useJoinWorkspace();
 
   const onSubmit = () => {
     mutate(
-      { param: { workspaceId }, json: { code: inviteCode } },
+      { param: { workspaceId }, json: { code: code } },
       {
         onSuccess: ({ data }) => {
           router.push(`/workspaces/${data.$id}`);
         },
-        onError: (error)=> {
-            // toast.error(error.stack)
-        }
+        onError: (error) => {
+          // toast.error(error.stack)
+        },
       }
     );
   };
@@ -62,7 +62,13 @@ export const JoinWorkspceForm = ({ initialValues }: JoinWorkspceFormProps) => {
           >
             <Link href={"/"}>Cancel</Link>
           </Button>
-          <Button className="w-full lg:w-fit" size={"lg"} type="button" disabled={isPending} onClick={onSubmit}>
+          <Button
+            className="w-full lg:w-fit"
+            size={"lg"}
+            type="button"
+            disabled={isPending}
+            onClick={onSubmit}
+          >
             Join workspace
           </Button>
         </div>
