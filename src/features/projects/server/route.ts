@@ -9,7 +9,8 @@ import {
 import { ID, Query } from "node-appwrite";
 import { getMember } from "@/features/members/utils";
 import { z } from "zod";
-import { createProjectSchema } from "../shemas";
+import { createProjectSchema, updateProjectSchema } from "../schemas";
+import { Project } from "../types";
 
 
 const app = new Hono()
@@ -80,130 +81,82 @@ const app = new Hono()
       return c.json({ data: project });
     }
   )
-//   .patch(
-//     "/:workspaceId",
-//     sessionMiddleware,
-//     zValidator("form", updateWorkspaceSchema),
-//     async (c) => {
-//       const databases = c.get("databases");
-//       const storage = c.get("storage");
-//       const user = c.get("user");
+  .patch(
+    "/:projectId",
+    sessionMiddleware,
+    zValidator("form", updateProjectSchema),
+    async (c) => {
+      const databases = c.get("databases");
+      const storage = c.get("storage");
+      const user = c.get("user");
 
-//       const { workspaceId } = c.req.param();
-//       const { name, image } = c.req.valid("form");
+      const { projectId } = c.req.param();
+      const { name, image } = c.req.valid("form");
 
-//       const member = await getMember({
-//         databases,
-//         workspaceId,
-//         userId: user.$id,
-//       });
+      const existingProject = await databases.getDocument<Project>(DATABASE_ID,PROJECTS_ID,projectId)
 
-//       if (!member || member.role !== MemberRole.ADMIN) {
-//         return c.json({ error: "Unauthorized" }, 401);
-//       }
+      const member = await getMember({
+        databases,
+        workspaceId: existingProject.workspaceId,
+        userId: user.$id,
+      });
 
-//       let uploadedImageUrl: string | undefined;
+      if (!member) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
 
-//       if (image instanceof File) {
-//         const file = await storage.createFile(
-//           IMAGES_BUCKET_ID,
-//           ID.unique(),
-//           image
-//         );
+      let uploadedImageUrl: string | undefined;
 
-//         const arrayBuffer = await storage.getFilePreview(
-//           IMAGES_BUCKET_ID,
-//           file.$id
-//         );
-//         uploadedImageUrl = `data:image/png;base64,${Buffer.from(
-//           arrayBuffer
-//         ).toString("base64")}`;
-//       } else {
-//         uploadedImageUrl = image;
-//       }
+      if (image instanceof File) {
+        const file = await storage.createFile(
+          IMAGES_BUCKET_ID,
+          ID.unique(),
+          image
+        );
 
-//       const workspace = await databases.updateDocument(
-//         DATABASE_ID,
-//         WORKSPACES_ID,
-//         workspaceId,
-//         {
-//           name,
-//           imageUrl: uploadedImageUrl,
-//         }
-//       );
+        const arrayBuffer = await storage.getFilePreview(
+          IMAGES_BUCKET_ID,
+          file.$id
+        );
+        uploadedImageUrl = `data:image/png;base64,${Buffer.from(
+          arrayBuffer
+        ).toString("base64")}`;
+      } else {
+        uploadedImageUrl = image;
+      }
 
-//       return c.json({ data: workspace });
-//     }
-//   )
-//   .delete("/:workspaceId", sessionMiddleware, async (c) => {
-//     const databases = c.get("databases");
-//     const user = c.get("user");
+      const project = await databases.updateDocument(
+        DATABASE_ID,
+        PROJECTS_ID,
+        projectId,
+        {
+          name,
+          imageUrl: uploadedImageUrl,
+        }
+      );
 
-//     const { workspaceId } = c.req.param();
+      return c.json({ data: project });
+    }
+  )
+  .delete("/:projectId", sessionMiddleware, async (c) => {
+    const databases = c.get("databases");
+    const user = c.get("user");
 
-//     const member = await getMember({
-//       databases,
-//       workspaceId,
-//       userId: user.$id,
-//     });
+    const { projectId } = c.req.param();
+    const existingProject = await databases.getDocument<Project>(DATABASE_ID,PROJECTS_ID,projectId)
 
-//     if (!member || member.role !== MemberRole.ADMIN) {
-//       return c.json({ error: "Unauthorized" }, 401);
-//     }
+    const member = await getMember({
+      databases,
+      workspaceId: existingProject.workspaceId,
+      userId: user.$id,
+    });
 
-//     await databases.deleteDocument(DATABASE_ID, WORKSPACES_ID, workspaceId);
+    if (!member) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
 
-//     return c.json({ data: { $id: workspaceId } });
-//   })
-//   .post("/:workspaceId/reset-invite-code", sessionMiddleware, async (c) => {
-//     const databases = c.get("databases");
-//     const user = c.get("user");
+    await databases.deleteDocument(DATABASE_ID, PROJECTS_ID, projectId);
 
-//     const { workspaceId } = c.req.param();
-
-//     const member = await getMember({
-//       databases,
-//       workspaceId,
-//       userId: user.$id,
-//     });
-
-//     if (!member || member.role !== MemberRole.ADMIN) {
-//       return c.json({ error: "Unauthorized" }, 401);
-//     }
-
-//     const workspace = await databases.updateDocument(
-//       DATABASE_ID,
-//       WORKSPACES_ID,
-//       workspaceId,
-//       {
-//         inviteCode: generateInviteCode(6),
-//       }
-//     );
-
-//     return c.json({ data: workspace });
-//   })
-//   .post(
-//     "/:workspaceId/join",
-//     sessionMiddleware,
-//     zValidator("json", z.object({ code: z.string() })),
-//     async (c) => {
-//       const { workspaceId } = c.req.param();
-
-//       const { code } = c.req.valid("json");
-
-//       const databases = c.get("databases");
-//       const user = c.get("user");
-
-//       const member = await getMember({
-//         databases,
-//         workspaceId,
-//         userId: user.$id,
-//       });
-
-//       if (member) {
-//         return c.json({ error: "Already a member" }, 400);
-//       }
-
-//     }
-//   );
+    return c.json({ data: { $id: projectId } });
+  })
 export default app;

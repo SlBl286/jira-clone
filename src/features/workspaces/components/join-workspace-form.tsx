@@ -35,9 +35,6 @@ export const JoinWorkspceForm = ({ initialValues,code,workspaceId }: JoinWorkspc
         onSuccess: ({ data }) => {
           router.push(`/workspaces/${data.$id}`);
         },
-        onError: (error) => {
-          // toast.error(error.stack)
-        },
       }
     );
   };

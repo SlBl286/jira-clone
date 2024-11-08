@@ -56,9 +56,9 @@ export const getProject = async ({ projectId }: GetProjectProps) => {
     return project;
 };
 
-type GetWorkspaceInfoProps = {
-  workspaceId: string;
-};
+// type GetWorkspaceInfoProps = {
+//   workspaceId: string;
+// };
 
 // export const getWorkspaceInfo = async ({ workspaceId }: GetWorkspaceInfoProps) => {
 //   try {
